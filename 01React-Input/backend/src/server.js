@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import { PrismaClient } from "@prisma/client";
 import morgan from "morgan";
 import cors from "cors";
 
@@ -19,25 +20,40 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cors(corsOptions));
 
+export const prisma = new PrismaClient();
+
 app.get("/", (req, res) => {
   res.send("Welcome to my mern-app");
 });
 
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    console.log(password);
+    if (!firstName || !lastName || !email || !password) {
+      res
+        .status(400)
+        .json({ success: false, message: "All fileds are required" });
+      return;
+    }
 
-    const userData = {
-      name: `${firstName} ${lastName}`,
-      email,
-    };
+    console.log(req.body);
+
+    const newUser = await prisma.user.create({
+      data: {
+        name: `${firstName} ${lastName}`,
+        email,
+        password,
+      },
+    });
 
     res.status(200).json({
       success: true,
       message: "Register Successfully",
-      data: userData,
+      user: {
+        userId: newUser.id,
+        name: newUser.name,
+      },
     });
   } catch (error) {
     console.log("Error in user register controller");

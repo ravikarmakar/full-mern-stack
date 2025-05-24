@@ -1,1 +1,3 @@
 registerDocs.tldr
+.env
+node_modules/

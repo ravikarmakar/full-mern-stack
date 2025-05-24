@@ -47,6 +47,8 @@ const Register = () => {
     }
 
     const resData = await res.json();
+
+    console.log(resData.data);
     setUserData(resData.data);
 
     // Clear Inputs
